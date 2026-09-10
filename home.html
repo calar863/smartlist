@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartList</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>SmartList</h1>
+      <p>Organize suas compras facilmente</p>
+    </div>
+    <div class="content">
+      <div id="erro" class="error-msg"></div>
+
+      <form id="form-nova-lista" style="margin-bottom:20px;">
+        <div class="field">
+          <input type="text" id="nome-lista" placeholder="Nome da nova lista (ex.: Compras do mês)">
+        </div>
+        <button type="submit" class="btn btn-primary">+ Criar Nova Lista</button>
+      </form>
+
+      <p class="section-title">Histórico</p>
+      <div id="historico"></div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/listas.js"></script>
+  <script>
+    const sessao = exigirLogin();
+
+    function renderHistorico() {
+      const container = document.getElementById("historico");
+      const listas = getListsByUser(sessao.id).sort(
+        (a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao)
+      );
+
+      if (listas.length === 0) {
+        container.innerHTML = '<div class="card card-empty">Nenhuma lista criada ainda<br><span class="muted">Crie sua primeira lista de compras!</span></div>';
+        return;
+      }
+
+      container.innerHTML = listas
+        .map((lista) => {
+          const p = progressoLista(lista);
+          const data = new Date(lista.dataCriacao).toLocaleString("pt-BR");
+          return `
+            <div class="history-item">
+              <a href="lista.html?id=${lista.id}">
+                <strong>${lista.nome}</strong>
+                <div class="muted">${lista.itens.length} itens &middot; ${data}</div>
+                <div class="muted">${p.concluidos} de ${p.total} completo &middot; ${p.percentual}%</div>
+                <div class="progress-bar"><div class="progress-bar-fill" style="width:${p.percentual}%"></div></div>
+              </a>
+            </div>`;
+        })
+        .join("");
+    }
+
+    document.getElementById("form-nova-lista").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const nomeInput = document.getElementById("nome-lista");
+      const erroBox = document.getElementById("erro");
+
+      const resultado = criarLista(nomeInput.value, sessao.id);
+      if (!resultado.ok) {
+        erroBox.textContent = resultado.erro;
+        erroBox.classList.add("show");
+        return;
+      }
+
+      erroBox.classList.remove("show");
+      nomeInput.value = "";
+      window.location.href = "lista.html?id=" + resultado.lista.id;
+    });
+
+    renderHistorico();
+  </script>
+</body>
+</html>
