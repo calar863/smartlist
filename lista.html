@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartList - Lista de Compras</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <div class="header header--compact">
+      <a href="home.html" class="back-link">&larr;</a>
+      <div>
+        <h1 id="titulo-lista" style="font-size:20px;">Compras</h1>
+        <p id="subtitulo-lista" class="muted" style="color:#e5f5e5;"></p>
+      </div>
+    </div>
+    <div class="content">
+      <div id="erro" class="error-msg"></div>
+
+      <form id="form-item" style="margin-bottom:20px;">
+        <div class="field">
+          <label for="item-nome">Nome do item</label>
+          <input type="text" id="item-nome" placeholder="Ex.: Água" required>
+        </div>
+        <div class="field">
+          <label for="item-quantidade">Quantidade</label>
+          <input type="number" id="item-quantidade" min="1" value="1">
+        </div>
+        <div class="field">
+          <label for="item-categoria">Categoria</label>
+          <input type="text" id="item-categoria" placeholder="Ex.: Bebidas">
+        </div>
+        <button type="submit" class="btn btn-primary">+ Adicionar Item</button>
+      </form>
+
+      <p class="section-title">Itens</p>
+      <div id="lista-itens"></div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/listas.js"></script>
+  <script>
+    const sessao = exigirLogin();
+
+    const params = new URLSearchParams(window.location.search);
+    const listId = params.get("id");
+    let lista = getListById(listId);
+
+    if (!lista || lista.idUsuario !== sessao.id) {
+      window.location.href = "home.html";
+    }
+
+    function renderLista() {
+      lista = getListById(listId);
+      const p = progressoLista(lista);
+
+      document.getElementById("titulo-lista").textContent = lista.nome;
+      document.getElementById("subtitulo-lista").textContent =
+        p.total === 0 ? "0 itens adicionados" : `${p.concluidos} de ${p.total} itens completos`;
+
+      const container = document.getElementById("lista-itens");
+      if (lista.itens.length === 0) {
+        container.innerHTML = '<div class="card card-empty">Nenhum item adicionado ainda</div>';
+        return;
+      }
+
+      container.innerHTML = lista.itens
+        .map((item) => {
+          const done = item.status === "concluido";
+          return `
+            <div class="list-item ${done ? "done" : ""}">
+              <div>
+                <span class="item-name">${item.nome}</span>
+                <div class="muted">${item.quantidade}x &middot; ${item.categoria}</div>
+              </div>
+              <div class="item-actions">
+                <button title="Concluir/pendente" onclick="onAlternar('${item.id}')">${done ? "↺" : "✓"}</button>
+                <button title="Remover item" onclick="onRemover('${item.id}')">🗑</button>
+              </div>
+            </div>`;
+        })
+        .join("");
+    }
+
+    function onAlternar(itemId) {
+      alternarStatusItem(listId, itemId);
+      renderLista();
+    }
+
+    function onRemover(itemId) {
+      removerItem(listId, itemId);
+      renderLista();
+    }
+
+    document.getElementById("form-item").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const nome = document.getElementById("item-nome");
+      const quantidade = document.getElementById("item-quantidade");
+      const categoria = document.getElementById("item-categoria");
+      const erroBox = document.getElementById("erro");
+
+      const resultado = adicionarItem(listId, nome.value, Number(quantidade.value), categoria.value);
+      if (!resultado.ok) {
+        erroBox.textContent = resultado.erro;
+        erroBox.classList.add("show");
+        return;
+      }
+
+      erroBox.classList.remove("show");
+      nome.value = "";
+      quantidade.value = 1;
+      categoria.value = "";
+      renderLista();
+    });
+
+    renderLista();
+  </script>
+</body>
+</html>
