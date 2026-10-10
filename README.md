@@ -7,14 +7,26 @@ como Projeto Integrador do curso de Sistemas para Internet.
 
 - HTML5
 - CSS3
-- JavaScript (vanilla, sem frameworks ou build tools)
-- Persistência local via `localStorage` do navegador (nesta sprint ainda não
-  há backend/banco de dados integrado)
+- JavaScript (vanilla, sem frameworks ou build tools), com `fetch` para
+  consumir a API
+- **SmartList API** (repositório separado:
+  [calar863/smartlist-api](https://github.com/calar863/smartlist-api)) —
+  Node.js + Express + Prisma + PostgreSQL, publicada em
+  https://smartlist-api-production.up.railway.app (documentação Swagger em
+  `/api-docs`)
+- `localStorage` do navegador apenas para guardar a sessão do usuário logado
 
 ## Como rodar o projeto localmente
 
-Como o front-end usa `localStorage`, é recomendado servir os arquivos por HTTP
-em vez de abri-los diretamente como `file://`.
+É recomendado servir os arquivos por HTTP em vez de abri-los diretamente como
+`file://`. Por padrão a UI usa a API publicada no Railway. Para apontar para
+uma API local, execute no console do navegador:
+
+```js
+localStorage.setItem("smartlist_api_url", "http://localhost:3000")
+```
+
+(e `localStorage.removeItem("smartlist_api_url")` para voltar ao padrão).
 
 **Opção 1 - com PowerShell (Windows), sem depender de Node/Python:**
 
@@ -36,8 +48,9 @@ cadastro.html   -> Tela de cadastro (Caso de Uso: Cadastrar usuário)
 home.html       -> Tela inicial: criar lista + histórico (Caso de Uso: Criar lista de compras)
 lista.html      -> Tela da lista: adicionar/concluir/remover itens (Caso de Uso: Adicionar Item)
 css/style.css   -> Estilos compartilhados entre as telas
-js/auth.js      -> Regras de cadastro e login
-js/listas.js    -> Regras de listas de compras e itens
+js/api.js       -> Cliente HTTP da SmartList API (fetch, tratamento de erros)
+js/auth.js      -> Cadastro, login, sessão e logout (via API)
+js/listas.js    -> Listas de compras e itens (via API)
 serve.ps1       -> Servidor HTTP estático simples para desenvolvimento local
 ```
 
@@ -55,10 +68,27 @@ projeto:
 4. **Adicionar item** - inclusão de itens (nome, quantidade, categoria) em
    uma lista, com opções de concluir/remover.
 
+## Tarefas da Entrega 3 (integração com a API)
+
+A persistência em `localStorage` foi substituída por chamadas HTTP à
+SmartList API:
+
+1. Cliente HTTP da API (`js/api.js`)
+2. Cadastro de usuário via `POST /api/usuarios`
+3. Login via `POST /api/auth/login` (sessões antigas do `localStorage` são descartadas)
+4. Histórico de listas do usuário via `GET /api/listas?usuarioId=`
+5. Criação de lista via `POST /api/listas`
+6. Tela da lista carregando dados via `GET /api/listas/:id`
+7. Adicionar item via `POST /api/listas/:id/itens`
+8. Concluir/reabrir item via `PATCH /api/listas/:id/itens/:itemId`
+9. Remover item via `DELETE /api/listas/:id/itens/:itemId`
+10. Excluir lista via `DELETE /api/listas/:id`
+11. Saudação e botão de logout
+12. Bloqueio de envio duplicado e estado de carregamento
+
 ## Próximos passos
 
-- Definir e implementar o back-end (API + banco de dados) a partir do DER e
-  do diagrama de classes já modelados.
-- Substituir a persistência em `localStorage` por chamadas HTTP ao back-end.
+- Autenticação por token (JWT): hoje o login devolve só os dados do usuário e
+  a API não verifica o dono das listas.
 - Avaliar autenticação social (Google/Facebook) conforme prototipado no
   Figma, hoje fora do escopo funcional implementado.
