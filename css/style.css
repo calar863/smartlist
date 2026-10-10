@@ -43,6 +43,23 @@ body {
   padding: 20px 24px;
 }
 
+.header--between {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logout-btn {
+  border: 1px solid rgba(255,255,255,0.7);
+  background: transparent;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 .back-link {
   color: #fff;
   text-decoration: none;

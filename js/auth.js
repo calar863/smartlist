@@ -54,6 +54,11 @@ async function realizarLogin(email, senha) {
   return { ok: true, usuario: resposta.dados };
 }
 
+function sair() {
+  clearSession();
+  window.location.href = "index.html";
+}
+
 function exigirLogin() {
   const session = getSession();
   // Sessões de versões antigas (ids em texto, gerados no localStorage) não

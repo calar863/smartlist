@@ -8,9 +8,12 @@
 </head>
 <body>
   <div class="app">
-    <div class="header">
-      <h1>SmartList</h1>
-      <p>Organize suas compras facilmente</p>
+    <div class="header header--between">
+      <div>
+        <h1>SmartList</h1>
+        <p id="saudacao">Organize suas compras facilmente</p>
+      </div>
+      <button type="button" class="logout-btn" onclick="sair()">Sair</button>
     </div>
     <div class="content">
       <div id="erro" class="error-msg"></div>
@@ -32,6 +35,7 @@
   <script src="js/listas.js"></script>
   <script>
     const sessao = exigirLogin();
+    document.getElementById("saudacao").textContent = "Olá, " + sessao.nome + "!";
 
     async function renderHistorico() {
       const container = document.getElementById("historico");
