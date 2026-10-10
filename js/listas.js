@@ -68,12 +68,13 @@ async function adicionarItem(listId, nome, quantidade, categoria) {
 }
 
 // Caso de Uso "Remover Item" (Diagrama de Sequência 1)
-function removerItem(listId, itemId) {
-  const lists = getLists();
-  const lista = lists.find((l) => l.id === listId);
-  if (!lista) return;
-  lista.itens = lista.itens.filter((i) => i.id !== itemId);
-  saveLists(lists);
+// (DELETE /api/listas/:id/itens/:itemId)
+async function removerItem(listId, itemId) {
+  const resposta = await apiRequest("DELETE", "/api/listas/" + listId + "/itens/" + itemId);
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
+  }
+  return { ok: true };
 }
 
 // Alterna entre "pendente" e "concluido" (PATCH /api/listas/:id/itens/:itemId)

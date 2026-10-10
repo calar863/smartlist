@@ -121,9 +121,13 @@
       await atualizarTela();
     }
 
-    function onRemover(itemId) {
-      removerItem(listId, itemId);
-      renderLista();
+    async function onRemover(itemId) {
+      const resultado = await removerItem(listId, itemId);
+      if (!resultado.ok) {
+        mostrarErro(resultado.erro);
+        return;
+      }
+      await atualizarTela();
     }
 
     document.getElementById("form-item").addEventListener("submit", async function (e) {
