@@ -69,12 +69,12 @@
         .join("");
     }
 
-    document.getElementById("form-nova-lista").addEventListener("submit", function (e) {
+    document.getElementById("form-nova-lista").addEventListener("submit", async function (e) {
       e.preventDefault();
       const nomeInput = document.getElementById("nome-lista");
       const erroBox = document.getElementById("erro");
 
-      const resultado = criarLista(nomeInput.value, sessao.id);
+      const resultado = await criarLista(nomeInput.value, sessao.id);
       if (!resultado.ok) {
         erroBox.textContent = resultado.erro;
         erroBox.classList.add("show");

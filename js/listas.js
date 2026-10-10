@@ -23,34 +23,20 @@ function getListById(listId) {
   return getLists().find((l) => l.id === listId) || null;
 }
 
-// Caso de Uso 02 - Criar lista de compras
-function criarLista(nome, userId) {
+// Caso de Uso 02 - Criar lista de compras (POST /api/listas)
+async function criarLista(nome, userId) {
   // Regra de Negócio: o nome da lista não pode ser nulo.
   if (!nome || !nome.trim()) {
     return { ok: false, erro: "O nome da lista não pode ser vazio." };
   }
 
-  const lists = getLists();
-
-  // Ponto de Extensão: nome de lista duplicado para o mesmo usuário.
-  const duplicada = lists.some(
-    (l) => l.idUsuario === userId && l.nome.toLowerCase() === nome.trim().toLowerCase()
-  );
-  if (duplicada) {
-    return { ok: false, erro: "Você já possui uma lista com esse nome." };
+  // Ponto de Extensão: nome duplicado para o mesmo usuário é recusado pela
+  // API (409 Conflict) com a mensagem exibida na tela.
+  const resposta = await apiRequest("POST", "/api/listas", { nome: nome.trim(), usuarioId: userId });
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
   }
-
-  const novaLista = {
-    id: "l" + Date.now(),
-    nome: nome.trim(),
-    idUsuario: userId,
-    dataCriacao: new Date().toISOString(),
-    itens: [],
-  };
-
-  lists.push(novaLista);
-  saveLists(lists);
-  return { ok: true, lista: novaLista };
+  return { ok: true, lista: resposta.dados };
 }
 
 function excluirLista(listId) {
