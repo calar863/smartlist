@@ -29,15 +29,16 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.getElementById("form-login").addEventListener("submit", function (e) {
+    document.getElementById("form-login").addEventListener("submit", async function (e) {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
       const senha = document.getElementById("senha").value;
       const erroBox = document.getElementById("erro");
 
-      const resultado = realizarLogin(email, senha);
+      const resultado = await realizarLogin(email, senha);
       if (!resultado.ok) {
         erroBox.textContent = resultado.erro;
         erroBox.classList.add("show");

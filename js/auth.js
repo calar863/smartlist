@@ -1,16 +1,7 @@
-// Camada de autenticação: cadastro e login de usuários usando localStorage
-// como armazenamento local (sem backend nesta sprint).
+// Camada de autenticação: cadastro e login via SmartList API (js/api.js).
+// O navegador guarda apenas a sessão (usuário logado) no localStorage.
 
-const USERS_KEY = "smartlist_users";
 const SESSION_KEY = "smartlist_session";
-
-function getUsers() {
-  return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-}
-
-function saveUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
 
 function getSession() {
   return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
@@ -48,29 +39,29 @@ async function cadastrarUsuario(nome, email, senha) {
   return { ok: true, usuario: resposta.dados };
 }
 
-// Caso de Uso 03 - Realizar login
-function realizarLogin(email, senha) {
+// Caso de Uso 03 - Realizar login (POST /api/auth/login)
+async function realizarLogin(email, senha) {
   if (!email || !senha) {
     return { ok: false, erro: "Informe e-mail e senha." };
   }
 
-  const users = getUsers();
-  const usuario = users.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.senha === senha
-  );
-
-  if (!usuario) {
-    return { ok: false, erro: "E-mail ou senha inválidos." };
+  const resposta = await apiRequest("POST", "/api/auth/login", { email, senha });
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
   }
 
-  setSession(usuario);
-  return { ok: true, usuario: usuario };
+  setSession(resposta.dados);
+  return { ok: true, usuario: resposta.dados };
 }
 
 function exigirLogin() {
   const session = getSession();
-  if (!session) {
+  // Sessões de versões antigas (ids em texto, gerados no localStorage) não
+  // existem na API: descarta e pede login novamente.
+  if (!session || typeof session.id !== "number") {
+    clearSession();
     window.location.href = "index.html";
+    return null;
   }
   return session;
 }
