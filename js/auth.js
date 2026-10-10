@@ -30,34 +30,22 @@ function isSenhaValida(senha) {
   return senha.length >= 8 && /[a-zA-Z]/.test(senha) && /[0-9]/.test(senha);
 }
 
-// Caso de Uso 01 - Cadastrar usuário
-function cadastrarUsuario(nome, email, senha) {
-  const users = getUsers();
-
+// Caso de Uso 01 - Cadastrar usuário (POST /api/usuarios)
+async function cadastrarUsuario(nome, email, senha) {
   if (!nome || !email || !senha) {
     return { ok: false, erro: "Preencha todos os campos obrigatórios." };
-  }
-
-  // Regra de Negócio: o e-mail informado deve ser único no sistema.
-  const jaExiste = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-  if (jaExiste) {
-    return { ok: false, erro: "Este e-mail já está cadastrado." };
   }
 
   if (!isSenhaValida(senha)) {
     return { ok: false, erro: "A senha deve ter no mínimo 8 caracteres, incluindo letras e números." };
   }
 
-  const novoUsuario = {
-    id: "u" + Date.now(),
-    nome: nome,
-    email: email,
-    senha: senha,
-  };
-  users.push(novoUsuario);
-  saveUsers(users);
-
-  return { ok: true, usuario: novoUsuario };
+  // A unicidade do e-mail é garantida pela API (409 Conflict).
+  const resposta = await apiRequest("POST", "/api/usuarios", { nome, email, senha });
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
+  }
+  return { ok: true, usuario: resposta.dados };
 }
 
 // Caso de Uso 03 - Realizar login

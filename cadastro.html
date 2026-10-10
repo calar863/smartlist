@@ -35,16 +35,17 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.getElementById("form-cadastro").addEventListener("submit", function (e) {
+    document.getElementById("form-cadastro").addEventListener("submit", async function (e) {
       e.preventDefault();
       const nome = document.getElementById("nome").value.trim();
       const email = document.getElementById("email").value.trim();
       const senha = document.getElementById("senha").value;
       const erroBox = document.getElementById("erro");
 
-      const resultado = cadastrarUsuario(nome, email, senha);
+      const resultado = await cadastrarUsuario(nome, email, senha);
       if (!resultado.ok) {
         erroBox.textContent = resultado.erro;
         erroBox.classList.add("show");
