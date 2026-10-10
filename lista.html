@@ -75,6 +75,12 @@
       return true;
     }
 
+    function mostrarErro(mensagem) {
+      const erroBox = document.getElementById("erro");
+      erroBox.textContent = mensagem;
+      erroBox.classList.add("show");
+    }
+
     function renderLista() {
       const p = progressoLista(lista);
 
@@ -105,9 +111,14 @@
         .join("");
     }
 
-    function onAlternar(itemId) {
-      alternarStatusItem(listId, itemId);
-      renderLista();
+    async function onAlternar(itemId) {
+      const item = lista.itens.find((i) => i.id === itemId);
+      const resultado = await alternarStatusItem(listId, item);
+      if (!resultado.ok) {
+        mostrarErro(resultado.erro);
+        return;
+      }
+      await atualizarTela();
     }
 
     function onRemover(itemId) {

@@ -76,14 +76,16 @@ function removerItem(listId, itemId) {
   saveLists(lists);
 }
 
-function alternarStatusItem(listId, itemId) {
-  const lists = getLists();
-  const lista = lists.find((l) => l.id === listId);
-  if (!lista) return;
-  const item = lista.itens.find((i) => i.id === itemId);
-  if (!item) return;
-  item.status = item.status === "concluido" ? "pendente" : "concluido";
-  saveLists(lists);
+// Alterna entre "pendente" e "concluido" (PATCH /api/listas/:id/itens/:itemId)
+async function alternarStatusItem(listId, item) {
+  const novoStatus = item.status === "concluido" ? "pendente" : "concluido";
+  const resposta = await apiRequest("PATCH", "/api/listas/" + listId + "/itens/" + item.id, {
+    status: novoStatus,
+  });
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
+  }
+  return { ok: true, item: resposta.dados };
 }
 
 function progressoLista(lista) {
