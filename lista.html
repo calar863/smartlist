@@ -39,6 +39,7 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/listas.js"></script>
   <script>
@@ -46,18 +47,38 @@
 
     const params = new URLSearchParams(window.location.search);
     const listId = params.get("id");
-    let lista = getListById(listId);
+    let lista = null;
 
-    if (!lista || lista.idUsuario !== sessao.id) {
-      window.location.href = "home.html";
+    // Busca a lista na API. Lista inexistente ou de outro usuário volta para a
+    // tela inicial; falhas de rede/servidor são exibidas na própria tela.
+    async function carregarLista() {
+      const resultado = await getListById(listId);
+      const erroBox = document.getElementById("erro");
+
+      if (!resultado.ok) {
+        if (resultado.status === 400 || resultado.status === 404) {
+          window.location.href = "home.html";
+        } else {
+          erroBox.textContent = resultado.erro;
+          erroBox.classList.add("show");
+        }
+        return false;
+      }
+
+      if (resultado.lista.usuario.id !== sessao.id) {
+        window.location.href = "home.html";
+        return false;
+      }
+
+      erroBox.classList.remove("show");
+      lista = resultado.lista;
+      return true;
     }
 
     function renderLista() {
-      lista = getListById(listId);
       const p = progressoLista(lista);
 
-      document.getElementById("titulo-lista").textContent = lista.nome;
-      document.getElementById("subtitulo-lista").textContent =
+      document.getElementById("titulo-lista").textContent = lista.nome;      document.getElementById("subtitulo-lista").textContent =
         p.total === 0 ? "0 itens adicionados" : `${p.concluidos} de ${p.total} itens completos`;
 
       const container = document.getElementById("lista-itens");
@@ -72,12 +93,12 @@
           return `
             <div class="list-item ${done ? "done" : ""}">
               <div>
-                <span class="item-name">${item.nome}</span>
-                <div class="muted">${item.quantidade}x &middot; ${item.categoria}</div>
+                <span class="item-name">${escapeHtml(item.nome)}</span>
+                <div class="muted">${item.quantidade}x &middot; ${escapeHtml(item.categoria)}</div>
               </div>
               <div class="item-actions">
-                <button title="Concluir/pendente" onclick="onAlternar('${item.id}')">${done ? "↺" : "✓"}</button>
-                <button title="Remover item" onclick="onRemover('${item.id}')">🗑</button>
+                <button title="Concluir/pendente" onclick="onAlternar(${item.id})">${done ? "↺" : "✓"}</button>
+                <button title="Remover item" onclick="onRemover(${item.id})">🗑</button>
               </div>
             </div>`;
         })
@@ -115,7 +136,13 @@
       renderLista();
     });
 
-    renderLista();
+    async function atualizarTela() {
+      if (await carregarLista()) {
+        renderLista();
+      }
+    }
+
+    atualizarTela();
   </script>
 </body>
 </html>

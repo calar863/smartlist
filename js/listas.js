@@ -19,8 +19,13 @@ async function getListsByUser(userId) {
   return { ok: true, listas: resposta.dados.dados };
 }
 
-function getListById(listId) {
-  return getLists().find((l) => l.id === listId) || null;
+// GET /api/listas/:id (já traz os itens da lista)
+async function getListById(listId) {
+  const resposta = await apiRequest("GET", "/api/listas/" + encodeURIComponent(listId));
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro, status: resposta.status };
+  }
+  return { ok: true, lista: resposta.dados };
 }
 
 // Caso de Uso 02 - Criar lista de compras (POST /api/listas)
