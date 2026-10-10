@@ -35,7 +35,7 @@
       </form>
 
       <p class="section-title">Itens</p>
-      <div id="lista-itens"></div>
+      <div id="lista-itens"><div class="card card-empty">Carregando...</div></div>
     </div>
   </div>
 
@@ -130,7 +130,7 @@
       await atualizarTela();
     }
 
-    document.getElementById("form-item").addEventListener("submit", async function (e) {
+    document.getElementById("form-item").addEventListener("submit", protegerEnvio(async function (e) {
       e.preventDefault();
       const nome = document.getElementById("item-nome");
       const quantidade = document.getElementById("item-quantidade");
@@ -149,7 +149,7 @@
       quantidade.value = 1;
       categoria.value = "";
       await atualizarTela();
-    });
+    }));
 
     async function atualizarTela() {
       if (await carregarLista()) {

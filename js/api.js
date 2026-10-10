@@ -52,6 +52,22 @@ async function apiRequest(metodo, caminho, corpo) {
   return { ok: true, dados: dados };
 }
 
+// Evita envios duplicados: desabilita o botão de submit enquanto a chamada à
+// API está em andamento (a rede pode demorar no primeiro acesso do servidor).
+function protegerEnvio(tratador) {
+  return async function (e) {
+    e.preventDefault();
+    const botao = e.target.querySelector("button[type=submit]");
+    if (botao.disabled) return;
+    botao.disabled = true;
+    try {
+      await tratador(e);
+    } finally {
+      botao.disabled = false;
+    }
+  };
+}
+
 // Os nomes de listas/itens vêm do servidor e são inseridos via innerHTML.
 function escapeHtml(texto) {
   return String(texto)

@@ -38,7 +38,7 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.getElementById("form-cadastro").addEventListener("submit", async function (e) {
+    document.getElementById("form-cadastro").addEventListener("submit", protegerEnvio(async function (e) {
       e.preventDefault();
       const nome = document.getElementById("nome").value.trim();
       const email = document.getElementById("email").value.trim();
@@ -54,7 +54,7 @@
 
       erroBox.classList.remove("show");
       window.location.href = "index.html";
-    });
+    }));
   </script>
 </body>
 </html>

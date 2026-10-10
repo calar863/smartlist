@@ -32,7 +32,7 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.getElementById("form-login").addEventListener("submit", async function (e) {
+    document.getElementById("form-login").addEventListener("submit", protegerEnvio(async function (e) {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
       const senha = document.getElementById("senha").value;
@@ -47,7 +47,7 @@
 
       erroBox.classList.remove("show");
       window.location.href = "home.html";
-    });
+    }));
   </script>
 </body>
 </html>

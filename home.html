@@ -26,7 +26,7 @@
       </form>
 
       <p class="section-title">Histórico</p>
-      <div id="historico"></div>
+      <div id="historico"><div class="card card-empty">Carregando...</div></div>
     </div>
   </div>
 
@@ -87,7 +87,7 @@
       await renderHistorico();
     }
 
-    document.getElementById("form-nova-lista").addEventListener("submit", async function (e) {
+    document.getElementById("form-nova-lista").addEventListener("submit", protegerEnvio(async function (e) {
       e.preventDefault();
       const nomeInput = document.getElementById("nome-lista");
       const erroBox = document.getElementById("erro");
@@ -102,7 +102,7 @@
       erroBox.classList.remove("show");
       nomeInput.value = "";
       window.location.href = "lista.html?id=" + resultado.lista.id;
-    });
+    }));
 
     renderHistorico();
   </script>
