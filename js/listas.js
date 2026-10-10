@@ -10,8 +10,13 @@ function saveLists(lists) {
   localStorage.setItem(LISTS_KEY, JSON.stringify(lists));
 }
 
-function getListsByUser(userId) {
-  return getLists().filter((l) => l.idUsuario === userId);
+// GET /api/listas?usuarioId= (a API limita pageSize a 50 listas por consulta)
+async function getListsByUser(userId) {
+  const resposta = await apiRequest("GET", "/api/listas?usuarioId=" + userId + "&pageSize=50");
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
+  }
+  return { ok: true, listas: resposta.dados.dados };
 }
 
 function getListById(listId) {

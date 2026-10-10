@@ -27,16 +27,25 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/listas.js"></script>
   <script>
     const sessao = exigirLogin();
 
-    function renderHistorico() {
+    async function renderHistorico() {
       const container = document.getElementById("historico");
-      const listas = getListsByUser(sessao.id).sort(
-        (a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao)
-      );
+      const erroBox = document.getElementById("erro");
+
+      const resultado = await getListsByUser(sessao.id);
+      if (!resultado.ok) {
+        erroBox.textContent = resultado.erro;
+        erroBox.classList.add("show");
+        container.innerHTML = "";
+        return;
+      }
+      erroBox.classList.remove("show");
+      const listas = resultado.listas;
 
       if (listas.length === 0) {
         container.innerHTML = '<div class="card card-empty">Nenhuma lista criada ainda<br><span class="muted">Crie sua primeira lista de compras!</span></div>';
@@ -50,7 +59,7 @@
           return `
             <div class="history-item">
               <a href="lista.html?id=${lista.id}">
-                <strong>${lista.nome}</strong>
+                <strong>${escapeHtml(lista.nome)}</strong>
                 <div class="muted">${lista.itens.length} itens &middot; ${data}</div>
                 <div class="muted">${p.concluidos} de ${p.total} completo &middot; ${p.percentual}%</div>
                 <div class="progress-bar"><div class="progress-bar-fill" style="width:${p.percentual}%"></div></div>
