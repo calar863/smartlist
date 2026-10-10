@@ -1,14 +1,5 @@
-// Camada de listas de compras e itens usando localStorage.
-
-const LISTS_KEY = "smartlist_lists";
-
-function getLists() {
-  return JSON.parse(localStorage.getItem(LISTS_KEY) || "[]");
-}
-
-function saveLists(lists) {
-  localStorage.setItem(LISTS_KEY, JSON.stringify(lists));
-}
+// Camada de listas de compras e itens: todas as operações passam pela
+// SmartList API (js/api.js) e devolvem { ok, ... } / { ok: false, erro }.
 
 // GET /api/listas?usuarioId= (a API limita pageSize a 50 listas por consulta)
 async function getListsByUser(userId) {
@@ -44,9 +35,13 @@ async function criarLista(nome, userId) {
   return { ok: true, lista: resposta.dados };
 }
 
-function excluirLista(listId) {
-  const lists = getLists().filter((l) => l.id !== listId);
-  saveLists(lists);
+// DELETE /api/listas/:id (a API remove também os itens da lista)
+async function excluirLista(listId) {
+  const resposta = await apiRequest("DELETE", "/api/listas/" + listId);
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
+  }
+  return { ok: true };
 }
 
 // Caso de Uso "Adicionar Item" (fluxo principal do Diagrama de Sequência 2)

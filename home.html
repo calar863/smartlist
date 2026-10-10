@@ -64,9 +64,23 @@
                 <div class="muted">${p.concluidos} de ${p.total} completo &middot; ${p.percentual}%</div>
                 <div class="progress-bar"><div class="progress-bar-fill" style="width:${p.percentual}%"></div></div>
               </a>
+              <button class="history-delete" title="Excluir lista" onclick="onExcluir(${lista.id})">🗑</button>
             </div>`;
         })
         .join("");
+    }
+
+    async function onExcluir(listId) {
+      if (!confirm("Excluir esta lista e todos os seus itens?")) return;
+
+      const resultado = await excluirLista(listId);
+      if (!resultado.ok) {
+        const erroBox = document.getElementById("erro");
+        erroBox.textContent = resultado.erro;
+        erroBox.classList.add("show");
+        return;
+      }
+      await renderHistorico();
     }
 
     document.getElementById("form-nova-lista").addEventListener("submit", async function (e) {
