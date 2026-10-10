@@ -115,14 +115,14 @@
       renderLista();
     }
 
-    document.getElementById("form-item").addEventListener("submit", function (e) {
+    document.getElementById("form-item").addEventListener("submit", async function (e) {
       e.preventDefault();
       const nome = document.getElementById("item-nome");
       const quantidade = document.getElementById("item-quantidade");
       const categoria = document.getElementById("item-categoria");
       const erroBox = document.getElementById("erro");
 
-      const resultado = adicionarItem(listId, nome.value, Number(quantidade.value), categoria.value);
+      const resultado = await adicionarItem(listId, nome.value, Number(quantidade.value), categoria.value);
       if (!resultado.ok) {
         erroBox.textContent = resultado.erro;
         erroBox.classList.add("show");
@@ -133,7 +133,7 @@
       nome.value = "";
       quantidade.value = 1;
       categoria.value = "";
-      renderLista();
+      await atualizarTela();
     });
 
     async function atualizarTela() {

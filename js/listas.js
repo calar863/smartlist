@@ -50,28 +50,21 @@ function excluirLista(listId) {
 }
 
 // Caso de Uso "Adicionar Item" (fluxo principal do Diagrama de Sequência 2)
-function adicionarItem(listId, nome, quantidade, categoria) {
+// (POST /api/listas/:id/itens)
+async function adicionarItem(listId, nome, quantidade, categoria) {
   if (!nome || !nome.trim()) {
     return { ok: false, erro: "Informe o nome do item." };
   }
 
-  const lists = getLists();
-  const lista = lists.find((l) => l.id === listId);
-  if (!lista) {
-    return { ok: false, erro: "Lista não encontrada." };
-  }
-
-  const novoItem = {
-    id: "i" + Date.now(),
+  const resposta = await apiRequest("POST", "/api/listas/" + listId + "/itens", {
     nome: nome.trim(),
     quantidade: quantidade && quantidade > 0 ? quantidade : 1,
-    categoria: categoria || "Outros",
-    status: "pendente",
-  };
-
-  lista.itens.push(novoItem);
-  saveLists(lists);
-  return { ok: true, item: novoItem };
+    categoria: categoria && categoria.trim() ? categoria.trim() : "Outros",
+  });
+  if (!resposta.ok) {
+    return { ok: false, erro: resposta.erro };
+  }
+  return { ok: true, item: resposta.dados };
 }
 
 // Caso de Uso "Remover Item" (Diagrama de Sequência 1)
